@@ -95,7 +95,7 @@ export default function SobreCompPage() {
                   className="inline-flex items-center justify-center rounded-full border-[3px] border-transparent bg-[#f4374c] p-[13px] text-[15px] leading-[21px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none"
                   style={{ transform: "translateX(-0.5px)" }}
                 >
-                  <span>Continuar cadastro</span>
+                  <span>Continuar para escolha de dados</span>
                 </button>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function SobreCompPage() {
               disabled={secondsLeft > 0}
               onClick={() => {
                 setIsPopupOpen(false);
-                router.push("/cadastro/proxima-etapa");
+                router.push("/cadastro/escolha-dados");
               }}
               className="absolute right-4 bottom-4 inline-flex items-center justify-center rounded-full border-[2.25px] border-transparent bg-[#f4374c] px-[15px] py-[9.75px] text-[12px] leading-[15.75px] font-bold text-white transition enabled:hover:bg-accent-strong enabled:focus-visible:ring-3 enabled:focus-visible:ring-ring enabled:focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
