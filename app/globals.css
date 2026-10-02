@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f3f2;
+  --surface: #ffffff;
+  --foreground: #111922;
+  --muted: #4c5560;
+  --accent: #e14952;
+  --accent-strong: #c73a43;
+  --on-accent: #ffffff;
+  --ring: #f29aa0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-on-accent: var(--on-accent);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-brand-body);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-brand-body), "Avenir Next", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-brand-heading), "Iowan Old Style", "Times New Roman", serif;
+}
