@@ -26,11 +26,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-brand-body), "Avenir Next", "Segoe UI", sans-serif;
-}
-
-h1,
-h2,
-h3 {
-  font-family: var(--font-brand-heading), "Iowan Old Style", "Times New Roman", serif;
+  font-family: var(--font-brand-body), "Inter", "Avenir Next", "Segoe UI", sans-serif;
 }

@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
-import { Fraunces, Space_Grotesk } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const brandHeading = Fraunces({
-  variable: "--font-brand-heading",
-  subsets: ["latin"],
-});
-
-const brandBody = Space_Grotesk({
+const brandBody = DM_Sans({
   variable: "--font-brand-body",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -19,10 +15,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${brandHeading.variable} ${brandBody.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${brandBody.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
