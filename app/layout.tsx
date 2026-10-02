@@ -9,7 +9,7 @@ const brandBody = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Compass Labs | Frontend Prototype",
+  title: "Comp Prototype",
   description: "Landing page prototype for a modern company frontend built with Next.js.",
 };
 

@@ -12,8 +12,9 @@ export default function SobreCompPage() {
             <button
               type="button"
               aria-label="Voltar"
-              onClick={() => router.push("/cadastro")}
-              className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white text-foreground transition hover:bg-[#eef0f3]"
+              aria-disabled="true"
+              disabled
+              className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-full bg-white text-foreground cursor-default"
               style={{ transform: "translateX(-0.5px)" }}
             >
               <svg
