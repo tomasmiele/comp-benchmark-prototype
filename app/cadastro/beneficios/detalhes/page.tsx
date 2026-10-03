@@ -123,6 +123,7 @@ type BenefitConfig = Record<string, string>;
 export default function DetalhesBeneficiosPage() {
   const router = useRouter();
   const [showNoBenefitsWarning, setShowNoBenefitsWarning] = useState(false);
+  const [showVariablePayIntro, setShowVariablePayIntro] = useState(false);
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [config, setConfig] = useState<BenefitConfig>({});
 
@@ -155,7 +156,7 @@ export default function DetalhesBeneficiosPage() {
       return;
     }
 
-    router.push("/cadastro/salario-incentivos");
+    setShowVariablePayIntro(true);
   };
 
   return (
@@ -288,10 +289,42 @@ export default function DetalhesBeneficiosPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push("/cadastro/salario-incentivos")}
+                onClick={() => {
+                  setShowNoBenefitsWarning(false);
+                  setShowVariablePayIntro(true);
+                }}
                 className="inline-flex items-center justify-center rounded-full border border-transparent bg-[#f4374c] px-5 py-2.5 text-[15px] leading-[21px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
                 Continuar sem benefícios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showVariablePayIntro && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="variable-pay-intro-title"
+            className="w-full max-w-[560px] rounded-3xl bg-white p-7 shadow-2xl"
+          >
+            <h2
+              id="variable-pay-intro-title"
+              className="text-center text-[22px] leading-[31px] font-bold text-[#111922]"
+            >
+              Selecione as práticas de remuneração variável que a sua empresa
+              pratica.
+            </h2>
+
+            <div className="mt-7 flex justify-end">
+              <button
+                type="button"
+                onClick={() => router.push("/cadastro/salario-incentivos")}
+                className="inline-flex items-center justify-center rounded-full border-2 border-[#f4374c] bg-[#f4374c] px-5 py-2 text-[15px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                Continuar
               </button>
             </div>
           </div>
