@@ -48,7 +48,7 @@ const industries = [
 ];
 
 const fieldClassName =
-  "h-[52px] w-full rounded-lg bg-[#e7e7e7] px-5 text-[15px] leading-[20px] font-bold text-[#111922] outline-none focus:ring-2 focus:ring-[#b8c2cf]";
+  "h-[52px] w-full rounded-lg bg-[#e7e7e7] px-5 text-[15px] leading-[20px] font-bold text-[#111922] outline-none focus:ring-2 focus:ring-[#b8c2cf] aria-[invalid=true]:bg-[#f4ecef]";
 
 const floatingLabelClassName =
   "pointer-events-none absolute left-5 top-2 text-[11px] leading-[14px] text-[#4c5560] transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-[15px] peer-placeholder-shown:font-bold peer-placeholder-shown:text-[#111922] peer-focus:top-2 peer-focus:translate-y-0 peer-focus:text-[11px] peer-focus:font-normal peer-focus:text-[#4c5560]";
@@ -63,6 +63,10 @@ export default function FinalizarCadastroPage() {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [industrySearch, setIndustrySearch] = useState("");
   const [isIndustryOpen, setIsIndustryOpen] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorToastMessage, setErrorToastMessage] = useState("");
+  const errorToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const closeIndustryDropdown = (event: MouseEvent) => {
@@ -79,6 +83,15 @@ export default function FinalizarCadastroPage() {
     return () => document.removeEventListener("mousedown", closeIndustryDropdown);
   }, []);
 
+  useEffect(
+    () => () => {
+      if (errorToastTimerRef.current) {
+        clearTimeout(errorToastTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const filteredIndustries = industries.filter((industry) =>
     industry.toLocaleLowerCase("pt-BR").includes(
       industrySearch.toLocaleLowerCase("pt-BR").trim(),
@@ -91,6 +104,46 @@ export default function FinalizarCadastroPage() {
         ? current.filter((item) => item !== industry)
         : [...current, industry],
     );
+  };
+
+  const hasEmployeeCountError = showValidation && employeeCount === "";
+  const hasContractTypeError = showValidation && contractType === "";
+  const hasAnnualRevenueError = showValidation && annualRevenue === "";
+
+  const displayErrorToast = (message: string) => {
+    setErrorToastMessage(message);
+    setShowErrorToast(true);
+
+    if (errorToastTimerRef.current) {
+      clearTimeout(errorToastTimerRef.current);
+    }
+
+    errorToastTimerRef.current = setTimeout(() => {
+      setShowErrorToast(false);
+    }, 5000);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (employeeCount === "" || contractType === "" || annualRevenue === "") {
+      setShowValidation(true);
+      displayErrorToast(
+        "Encontramos alguns erros nos campos. Ajuste para conseguir salvar as informações.",
+      );
+      return;
+    }
+
+    if (Number(employeeCount) < 25) {
+      setShowValidation(false);
+      displayErrorToast(
+        "Para participação no benchmark a Comp exige no mínimo 25 colaboradores",
+      );
+      return;
+    }
+
+    setShowValidation(false);
+    router.push("/cadastro/beneficios");
   };
 
   return (
@@ -127,16 +180,18 @@ export default function FinalizarCadastroPage() {
           </div>
         </header>
 
-        <section className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-[420px]">
-            <h1 className="mb-5 text-center text-[24px] leading-[32px] font-bold text-[#111922]">
-              Informações sobre a empresa
-            </h1>
+        <section className="mt-8 flex justify-center">
+          <h1 className="max-w-[760px] text-center text-[28px] leading-[41px] font-bold text-[#0f1923]">
+            Informações sobre a empresa
+          </h1>
+        </section>
 
+        <section className="flex flex-1 items-center justify-center py-8">
+          <div className="w-full max-w-[420px]">
             <form
               id="company-info-form"
               className="flex w-full flex-col gap-2"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={handleSubmit}
             >
               <div className="relative">
               <input
@@ -232,11 +287,23 @@ export default function FinalizarCadastroPage() {
                 onChange={(event) => setEmployeeCount(event.target.value)}
                 placeholder=" "
                 aria-label="Número de colaboradores"
+                aria-invalid={hasEmployeeCountError}
+                aria-describedby={
+                  hasEmployeeCountError ? "employeeCount-error" : undefined
+                }
                 className={`${fieldClassName} peer pt-4.5 pb-0.5`}
               />
               <label htmlFor="employeeCount" className={floatingLabelClassName}>
                 Número de colaboradores
               </label>
+              {hasEmployeeCountError && (
+                <p
+                  id="employeeCount-error"
+                  className="mt-1 px-5 text-[12px] leading-[16px] text-[#df0071]"
+                >
+                  campo obrigatório
+                </p>
+              )}
             </div>
 
             <div className="relative">
@@ -246,6 +313,10 @@ export default function FinalizarCadastroPage() {
                 value={contractType}
                 onChange={(event) => setContractType(event.target.value)}
                 aria-label="Tipo de contrato dos colaboradores"
+                aria-invalid={hasContractTypeError}
+                aria-describedby={
+                  hasContractTypeError ? "contractType-error" : undefined
+                }
                 className={`${fieldClassName} cursor-pointer appearance-none pr-12 ${contractType !== "" ? "pt-4" : ""}`}
               >
                 <option value="" disabled>
@@ -264,6 +335,14 @@ export default function FinalizarCadastroPage() {
                 </label>
               )}
               <ChevronDown />
+              {hasContractTypeError && (
+                <p
+                  id="contractType-error"
+                  className="mt-1 px-5 text-[12px] leading-[16px] text-[#df0071]"
+                >
+                  campo obrigatório
+                </p>
+              )}
             </div>
 
             <div className="relative">
@@ -273,6 +352,10 @@ export default function FinalizarCadastroPage() {
                 value={annualRevenue}
                 onChange={(event) => setAnnualRevenue(event.target.value)}
                 aria-label="Faturamento anual"
+                aria-invalid={hasAnnualRevenueError}
+                aria-describedby={
+                  hasAnnualRevenueError ? "annualRevenue-error" : undefined
+                }
                 className={`${fieldClassName} cursor-pointer appearance-none pr-12 ${annualRevenue !== "" ? "pt-4" : ""}`}
               >
                 <option value="" disabled>
@@ -298,6 +381,14 @@ export default function FinalizarCadastroPage() {
                 </label>
               )}
               <ChevronDown />
+              {hasAnnualRevenueError && (
+                <p
+                  id="annualRevenue-error"
+                  className="mt-1 px-5 text-[12px] leading-[16px] text-[#df0071]"
+                >
+                  campo obrigatório
+                </p>
+              )}
               </div>
 
               <div className="mt-3 flex justify-end">
@@ -312,6 +403,15 @@ export default function FinalizarCadastroPage() {
           </div>
         </section>
       </div>
+
+      {showErrorToast && (
+        <div
+          role="alert"
+          className="fixed bottom-6 left-1/2 z-40 w-[calc(100%-32px)] max-w-[980px] -translate-x-1/2 rounded-xl bg-[#111922] px-8 py-4 text-center text-[15px] leading-[22px] text-[#dfe3e7] shadow-xl"
+        >
+          {errorToastMessage}
+        </div>
+      )}
     </main>
   );
 }
