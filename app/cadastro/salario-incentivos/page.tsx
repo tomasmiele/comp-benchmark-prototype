@@ -10,6 +10,7 @@ export default function SalarioIncentivosPage() {
   const [selectedIncentives, setSelectedIncentives] = useState<string[]>([]);
   const [offersOtherIncentives, setOffersOtherIncentives] = useState(false);
   const [otherIncentives, setOtherIncentives] = useState("");
+  const [showNoIncentivesWarning, setShowNoIncentivesWarning] = useState(false);
 
   const toggleIncentive = (incentive: string) => {
     setSelectedIncentives((current) =>
@@ -17,6 +18,15 @@ export default function SalarioIncentivosPage() {
         ? current.filter((item) => item !== incentive)
         : [...current, incentive],
     );
+  };
+
+  const handleNext = () => {
+    if (selectedIncentives.length === 0 && !offersOtherIncentives) {
+      setShowNoIncentivesWarning(true);
+      return;
+    }
+
+    router.push("/cadastro/planilha-colaboradores");
   };
 
   return (
@@ -131,7 +141,7 @@ export default function SalarioIncentivosPage() {
             <div className="mt-3 flex justify-end">
               <button
                 type="button"
-                onClick={() => router.push("/cadastro/planilha-colaboradores")}
+                onClick={handleNext}
                 className="inline-flex items-center justify-center rounded-full border-2 border-[#f4374c] bg-[#f4374c] px-4 py-1.5 text-[13px] leading-[18px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
                 Próximo
@@ -140,6 +150,41 @@ export default function SalarioIncentivosPage() {
           </div>
         </section>
       </div>
+
+      {showNoIncentivesWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="no-incentives-title"
+            aria-describedby="no-incentives-description"
+            className="w-full max-w-[560px] rounded-3xl bg-white p-7 shadow-2xl"
+          >
+            <h2
+              id="no-incentives-title"
+              className="text-[24px] leading-[31px] font-bold text-[#111922]"
+            >
+              Atenção
+            </h2>
+            <p
+              id="no-incentives-description"
+              className="mt-3 text-[16px] leading-[24px] text-[#4c5560]"
+            >
+              Você não selecionou nenhuma opção de Incentivo de Curto Prazo. Se seguir dessa forma você não terá acesso aos benchmarks de Incentivo de Curto Prazo, tem certeza que deseja continuar?
+            </p>
+
+            <div className="mt-7 flex justify-end">
+              <button
+                type="button"
+                onClick={() => router.push("/cadastro/planilha-colaboradores")}
+                className="inline-flex items-center justify-center rounded-full border-2 border-[#f4374c] bg-[#f4374c] px-5 py-2 text-[15px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                Continuar sem acesso
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
