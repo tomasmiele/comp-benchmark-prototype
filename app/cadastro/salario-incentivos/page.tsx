@@ -173,7 +173,14 @@ export default function SalarioIncentivosPage() {
               Você não selecionou nenhuma opção de Incentivo de Curto Prazo. Se seguir dessa forma você não terá acesso aos benchmarks de Incentivo de Curto Prazo, tem certeza que deseja continuar?
             </p>
 
-            <div className="mt-7 flex justify-end">
+            <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setShowNoIncentivesWarning(false)}
+                className="inline-flex items-center justify-center rounded-full border border-[#d6dbe1] bg-white px-5 py-2.5 text-[15px] leading-[21px] font-bold text-[#111922] transition hover:bg-[#eef0f3] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                Preencher
+              </button>
               <button
                 type="button"
                 onClick={() => router.push("/cadastro/planilha-colaboradores")}
