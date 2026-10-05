@@ -120,6 +120,81 @@ const floatingLabelClassName =
 
 type BenefitConfig = Record<string, string>;
 
+function isFilled(value: string | undefined) {
+  return Boolean(value?.trim());
+}
+
+function isBenefitConfigurationComplete(
+  benefit: (typeof benefitOptions)[number],
+  config: BenefitConfig,
+) {
+  switch (benefit) {
+    case "Auxílio atividade física":
+      return (
+        isFilled(config.physicalProvider) &&
+        (config.physicalProvider !== "Outro" ||
+          isFilled(config.physicalProviderOther))
+      );
+    case "Auxílio creche":
+      return isFilled(config.childcareMonthlyValue);
+    case "Auxílio educação":
+      return isFilled(config.educationMonthlyValue);
+    case "Auxílio home office":
+      return (
+        isFilled(config.homeOfficeOneTime) &&
+        isFilled(config.homeOfficeMonthly)
+      );
+    case "Auxílio saúde mental":
+      return (
+        isFilled(config.mentalProvider) &&
+        (config.mentalProvider !== "Outro" ||
+          isFilled(config.mentalProviderOther))
+      );
+    case "Benefício flexível":
+      return (
+        isFilled(config.flexibleProvider) &&
+        (config.flexibleProvider !== "Outro" ||
+          isFilled(config.flexibleProviderOther)) &&
+        isFilled(config.flexibleMonthlyValue)
+      );
+    case "Licença maternidade estendida":
+      return isFilled(config.maternityDays);
+    case "Licença paternidade estendida":
+      return isFilled(config.paternityDays);
+    case "Plano de saúde":
+      return (
+        isFilled(config.healthInsurer) &&
+        (config.healthInsurer !== "Outro" ||
+          isFilled(config.healthInsurerOther)) &&
+        isFilled(config.healthAccommodation) &&
+        isFilled(config.healthCopay) &&
+        isFilled(config.healthContribution) &&
+        isFilled(config.healthDependentCharge)
+      );
+    case "Plano odontológico":
+      return (
+        isFilled(config.dentalInsurer) &&
+        (config.dentalInsurer !== "Outro" ||
+          isFilled(config.dentalInsurerOther)) &&
+        isFilled(config.dentalCopay) &&
+        isFilled(config.dentalContribution) &&
+        isFilled(config.dentalDependentCharge)
+      );
+    case "Previdência privada":
+      return (
+        isFilled(config.pensionProvider) &&
+        isFilled(config.pensionVestingYears) &&
+        isFilled(config.pensionMatching)
+      );
+    case "Trabalho remoto":
+      return isFilled(config.remoteWorkModel);
+    case "Vale alimentação e Vale refeição":
+      return isFilled(config.mealMonthlyValue);
+    default:
+      return true;
+  }
+}
+
 export default function DetalhesBeneficiosPage() {
   const router = useRouter();
   const [showNoBenefitsWarning, setShowNoBenefitsWarning] = useState(false);
@@ -151,7 +226,15 @@ export default function DetalhesBeneficiosPage() {
   };
 
   const handleNext = () => {
-    if (selectedBenefits.length === 0) {
+    const hasIncompleteBenefit = selectedBenefits.some(
+      (benefit) =>
+        !isBenefitConfigurationComplete(
+          benefit as (typeof benefitOptions)[number],
+          config,
+        ),
+    );
+
+    if (selectedBenefits.length === 0 || hasIncompleteBenefit) {
       setShowNoBenefitsWarning(true);
       return;
     }
