@@ -107,6 +107,7 @@ export default function FinalizarCadastroPage() {
     );
   };
 
+  const hasIndustryError = showValidation && selectedIndustries.length === 0;
   const hasEmployeeCountError = showValidation && employeeCount === "";
   const hasContractTypeError = showValidation && contractType === "";
   const hasAnnualRevenueError = showValidation && annualRevenue === "";
@@ -127,7 +128,12 @@ export default function FinalizarCadastroPage() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (employeeCount === "" || contractType === "" || annualRevenue === "") {
+    if (
+      selectedIndustries.length === 0 ||
+      employeeCount === "" ||
+      contractType === "" ||
+      annualRevenue === ""
+    ) {
       setShowValidation(true);
       displayErrorToast(
         "Encontramos alguns erros nos campos. Ajuste para conseguir salvar as informações.",
@@ -215,8 +221,9 @@ export default function FinalizarCadastroPage() {
                 type="button"
                 aria-haspopup="listbox"
                 aria-expanded={isIndustryOpen}
+                aria-describedby={hasIndustryError ? "industry-error" : undefined}
                 onClick={() => setIsIndustryOpen((current) => !current)}
-                className={`${fieldClassName} flex items-center justify-between gap-4 text-left ${selectedIndustries.length > 0 ? "pt-4" : ""}`}
+                className={`${fieldClassName} flex items-center justify-between gap-4 text-left ${selectedIndustries.length > 0 ? "pt-4" : ""} ${hasIndustryError ? "bg-[#f4ecef]" : ""}`}
               >
                 <span
                   className={`truncate ${selectedIndustries.length === 0 ? "text-[#111922]" : ""}`}
@@ -274,6 +281,14 @@ export default function FinalizarCadastroPage() {
                     )}
                   </div>
                 </div>
+              )}
+              {hasIndustryError && (
+                <p
+                  id="industry-error"
+                  className="mt-1 px-5 text-[12px] leading-[16px] text-[#df0071]"
+                >
+                  campo obrigatório
+                </p>
               )}
             </div>
 

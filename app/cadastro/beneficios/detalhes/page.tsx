@@ -94,22 +94,31 @@ const configKeysByBenefit: Record<string, string[]> = {
     "healthInsurerOther",
     "healthAccommodation",
     "healthCopay",
+    "healthCopayPercent",
     "healthContribution",
+    "healthMonthlyContribution",
     "healthDependentCharge",
+    "healthDependentPercent",
   ],
   "Plano odontológico": [
     "dentalInsurer",
     "dentalInsurerOther",
     "dentalCopay",
+    "dentalCopayPercent",
     "dentalContribution",
+    "dentalMonthlyContribution",
     "dentalDependentCharge",
+    "dentalDependentPercent",
   ],
   "Previdência privada": [
     "pensionProvider",
     "pensionVestingYears",
     "pensionMatching",
+    "pensionMatchingCriteria",
+    "pensionMatchingPercent",
+    "pensionMatchingSalaryLimit",
   ],
-  "Trabalho remoto": ["remoteWorkModel"],
+  "Trabalho remoto": ["remoteWorkModel", "remoteDaysPerWeek"],
   "Vale alimentação e Vale refeição": ["mealMonthlyValue"],
 };
 
@@ -169,8 +178,13 @@ function isBenefitConfigurationComplete(
           isFilled(config.healthInsurerOther)) &&
         isFilled(config.healthAccommodation) &&
         isFilled(config.healthCopay) &&
+        (config.healthCopay !== "sim" || isFilled(config.healthCopayPercent)) &&
         isFilled(config.healthContribution) &&
-        isFilled(config.healthDependentCharge)
+        (config.healthContribution !== "sim" ||
+          isFilled(config.healthMonthlyContribution)) &&
+        isFilled(config.healthDependentCharge) &&
+        (config.healthDependentCharge !== "sim" ||
+          isFilled(config.healthDependentPercent))
       );
     case "Plano odontológico":
       return (
@@ -178,17 +192,30 @@ function isBenefitConfigurationComplete(
         (config.dentalInsurer !== "Outro" ||
           isFilled(config.dentalInsurerOther)) &&
         isFilled(config.dentalCopay) &&
+        (config.dentalCopay !== "sim" || isFilled(config.dentalCopayPercent)) &&
         isFilled(config.dentalContribution) &&
-        isFilled(config.dentalDependentCharge)
+        (config.dentalContribution !== "sim" ||
+          isFilled(config.dentalMonthlyContribution)) &&
+        isFilled(config.dentalDependentCharge) &&
+        (config.dentalDependentCharge !== "sim" ||
+          isFilled(config.dentalDependentPercent))
       );
     case "Previdência privada":
       return (
         isFilled(config.pensionProvider) &&
         isFilled(config.pensionVestingYears) &&
-        isFilled(config.pensionMatching)
+        isFilled(config.pensionMatching) &&
+        (config.pensionMatching !== "sim" ||
+          (isFilled(config.pensionMatchingCriteria) &&
+            isFilled(config.pensionMatchingPercent) &&
+            isFilled(config.pensionMatchingSalaryLimit)))
       );
     case "Trabalho remoto":
-      return isFilled(config.remoteWorkModel);
+      return (
+        isFilled(config.remoteWorkModel) &&
+        (config.remoteWorkModel !== "Híbrido" ||
+          isFilled(config.remoteDaysPerWeek))
+      );
     case "Vale alimentação e Vale refeição":
       return isFilled(config.mealMonthlyValue);
     default:
@@ -200,6 +227,7 @@ export default function DetalhesBeneficiosPage() {
   const router = useRouter();
   const [showNoBenefitsWarning, setShowNoBenefitsWarning] = useState(false);
   const [showVariablePayIntro, setShowVariablePayIntro] = useState(false);
+  const [incompleteBenefits, setIncompleteBenefits] = useState<string[]>([]);
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const [config, setConfig] = useState<BenefitConfig>({});
 
@@ -227,7 +255,12 @@ export default function DetalhesBeneficiosPage() {
   };
 
   const handleNext = () => {
-    const hasIncompleteBenefit = selectedBenefits.some(
+    if (selectedBenefits.length === 0) {
+      setShowNoBenefitsWarning(true);
+      return;
+    }
+
+    const incomplete = selectedBenefits.filter(
       (benefit) =>
         !isBenefitConfigurationComplete(
           benefit as (typeof benefitOptions)[number],
@@ -235,8 +268,8 @@ export default function DetalhesBeneficiosPage() {
         ),
     );
 
-    if (selectedBenefits.length === 0 || hasIncompleteBenefit) {
-      setShowNoBenefitsWarning(true);
+    if (incomplete.length > 0) {
+      setIncompleteBenefits(incomplete);
       return;
     }
 
@@ -382,6 +415,41 @@ export default function DetalhesBeneficiosPage() {
                 className="inline-flex items-center justify-center rounded-full border border-transparent bg-[#f4374c] px-5 py-2.5 text-[15px] leading-[21px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
                 Continuar sem benefícios
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {incompleteBenefits.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="incomplete-benefits-title"
+            aria-describedby="incomplete-benefits-description"
+            className="w-full max-w-[620px] rounded-3xl bg-white p-7 shadow-2xl"
+          >
+            <h2
+              id="incomplete-benefits-title"
+              className="text-[24px] leading-[31px] font-bold text-[#111922]"
+            >
+              Atenção
+            </h2>
+            <p
+              id="incomplete-benefits-description"
+              className="mt-3 text-[16px] leading-[24px] text-[#4c5560]"
+            >
+              Preencha as especificações dos benefícios selecionados para
+              continuar: {incompleteBenefits.join(", ")}.
+            </p>
+            <div className="mt-7 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIncompleteBenefits([])}
+                className="inline-flex items-center justify-center rounded-full border-2 border-[#f4374c] bg-[#f4374c] px-5 py-2 text-[15px] font-bold text-white transition hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                Preencher benefícios
               </button>
             </div>
           </div>
@@ -624,16 +692,48 @@ function BenefitConfiguration({
             value={config.healthCopay ?? ""}
             onChange={(value) => onChange("healthCopay", value)}
           />
+          {config.healthCopay === "sim" && (
+            <CompactInput
+              id="healthCopayPercent"
+              label="Informe a porcentagem"
+              type="number"
+              value={config.healthCopayPercent ?? ""}
+              onChange={(value) => onChange("healthCopayPercent", value)}
+            />
+          )}
           <YesNoField
             label="O colaborador contribui no plano de saúde?"
             value={config.healthContribution ?? ""}
             onChange={(value) => onChange("healthContribution", value)}
           />
+          {config.healthContribution === "sim" && (
+            <CompactInput
+              id="healthMonthlyContribution"
+              label="Contribuição mensal"
+              type="number"
+              value={config.healthMonthlyContribution ?? ""}
+              onChange={(value) =>
+                onChange("healthMonthlyContribution", value)
+              }
+            />
+          )}
           <YesNoField
             label="É cobrado do dependente?"
             value={config.healthDependentCharge ?? ""}
             onChange={(value) => onChange("healthDependentCharge", value)}
           />
+          {config.healthDependentCharge === "sim" && (
+            <>
+              <Hint>Coparticipação do 1º dependente?</Hint>
+              <CompactInput
+                id="healthDependentPercent"
+                label="Porcentagem"
+                type="number"
+                value={config.healthDependentPercent ?? ""}
+                onChange={(value) => onChange("healthDependentPercent", value)}
+              />
+            </>
+          )}
         </ConfigurationPanel>
       );
 
@@ -664,16 +764,48 @@ function BenefitConfiguration({
             value={config.dentalCopay ?? ""}
             onChange={(value) => onChange("dentalCopay", value)}
           />
+          {config.dentalCopay === "sim" && (
+            <CompactInput
+              id="dentalCopayPercent"
+              label="Informe a porcentagem"
+              type="number"
+              value={config.dentalCopayPercent ?? ""}
+              onChange={(value) => onChange("dentalCopayPercent", value)}
+            />
+          )}
           <YesNoField
             label="O colaborador contribui no plano?"
             value={config.dentalContribution ?? ""}
             onChange={(value) => onChange("dentalContribution", value)}
           />
+          {config.dentalContribution === "sim" && (
+            <CompactInput
+              id="dentalMonthlyContribution"
+              label="Contribuição mensal"
+              type="number"
+              value={config.dentalMonthlyContribution ?? ""}
+              onChange={(value) =>
+                onChange("dentalMonthlyContribution", value)
+              }
+            />
+          )}
           <YesNoField
             label="É cobrado do dependente?"
             value={config.dentalDependentCharge ?? ""}
             onChange={(value) => onChange("dentalDependentCharge", value)}
           />
+          {config.dentalDependentCharge === "sim" && (
+            <>
+              <Hint>Coparticipação do 1º dependente?</Hint>
+              <CompactInput
+                id="dentalDependentPercent"
+                label="Porcentagem"
+                type="number"
+                value={config.dentalDependentPercent ?? ""}
+                onChange={(value) => onChange("dentalDependentPercent", value)}
+              />
+            </>
+          )}
         </ConfigurationPanel>
       );
 
@@ -702,6 +834,57 @@ function BenefitConfiguration({
             value={config.pensionMatching ?? ""}
             onChange={(value) => onChange("pensionMatching", value)}
           />
+          {config.pensionMatching === "sim" && (
+            <>
+              <YesNoField
+                label="Você diferencia o matching por algum critério?"
+                value={config.pensionMatchingCriteria ?? ""}
+                onChange={(value) =>
+                  onChange("pensionMatchingCriteria", value)
+                }
+              />
+              {config.pensionMatchingCriteria && (
+                <>
+                  <Hint>
+                    {config.pensionMatchingCriteria === "sim"
+                      ? "Qual a maior porcentagem de matching oferecida pela empresa?"
+                      : "Qual a porcentagem de matching oferecida pela empresa?"}
+                  </Hint>
+                  <CompactInput
+                    id="pensionMatchingPercent"
+                    label={
+                      config.pensionMatchingCriteria === "sim"
+                        ? "Maior porcentagem de matching"
+                        : "Porcentagem de matching"
+                    }
+                    type="number"
+                    value={config.pensionMatchingPercent ?? ""}
+                    onChange={(value) =>
+                      onChange("pensionMatchingPercent", value)
+                    }
+                  />
+                  <Hint>
+                    {config.pensionMatchingCriteria === "sim"
+                      ? "Qual a maior porcentagem limite do salário que o colaborador ao investir recebe o matching?"
+                      : "Qual a porcentagem limite do salário que o colaborador ao investir recebe o matching?"}
+                  </Hint>
+                  <CompactInput
+                    id="pensionMatchingSalaryLimit"
+                    label={
+                      config.pensionMatchingCriteria === "sim"
+                        ? "Maior porcentagem limite do salário"
+                        : "Porcentagem limite do salário"
+                    }
+                    type="number"
+                    value={config.pensionMatchingSalaryLimit ?? ""}
+                    onChange={(value) =>
+                      onChange("pensionMatchingSalaryLimit", value)
+                    }
+                  />
+                </>
+              )}
+            </>
+          )}
         </ConfigurationPanel>
       );
 
@@ -715,6 +898,15 @@ function BenefitConfiguration({
             options={["100% Home Office", "Híbrido"]}
             onChange={(value) => onChange("remoteWorkModel", value)}
           />
+          {config.remoteWorkModel === "Híbrido" && (
+            <CompactInput
+              id="remoteDaysPerWeek"
+              label="Quantos dias por semana é remoto?"
+              type="number"
+              value={config.remoteDaysPerWeek ?? ""}
+              onChange={(value) => onChange("remoteDaysPerWeek", value)}
+            />
+          )}
         </ConfigurationPanel>
       );
 
