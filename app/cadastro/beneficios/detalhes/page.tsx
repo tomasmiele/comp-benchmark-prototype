@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import CadastroProgress from "../../_components/CadastroProgress";
 
 const benefitOptions = [
   "Auxílio atividade física",
@@ -244,7 +245,7 @@ export default function DetalhesBeneficiosPage() {
 
   return (
     <main
-      className="min-h-screen bg-background px-4 pt-3 pb-8 font-sans"
+      className="min-h-screen bg-background px-4 pt-3 pb-24 font-sans"
       aria-label="Detalhes dos benefícios"
     >
       <div className="mx-auto flex min-h-[calc(100vh-44px)] w-full max-w-[1720px] flex-col">
@@ -338,6 +339,8 @@ export default function DetalhesBeneficiosPage() {
           </div>
         </section>
       </div>
+
+      <CadastroProgress step={2} />
 
       {showNoBenefitsWarning && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4">

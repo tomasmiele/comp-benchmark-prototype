@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import CadastroProgress from "../_components/CadastroProgress";
 
 const industries = [
   "Agricultura",
@@ -148,7 +149,7 @@ export default function FinalizarCadastroPage() {
 
   return (
     <main
-      className="min-h-screen bg-background px-4 pt-3 pb-8 font-sans"
+      className="min-h-screen bg-background px-4 pt-3 pb-24 font-sans"
       aria-label="Informações sobre a empresa"
     >
       <div className="mx-auto flex min-h-[calc(100vh-44px)] w-full max-w-[1720px] flex-col">
@@ -404,10 +405,12 @@ export default function FinalizarCadastroPage() {
         </section>
       </div>
 
+      <CadastroProgress step={1} />
+
       {showErrorToast && (
         <div
           role="alert"
-          className="fixed bottom-6 left-1/2 z-40 w-[calc(100%-32px)] max-w-[980px] -translate-x-1/2 rounded-xl bg-[#111922] px-8 py-4 text-center text-[15px] leading-[22px] text-[#dfe3e7] shadow-xl"
+          className="fixed bottom-20 left-1/2 z-40 w-[calc(100%-32px)] max-w-[980px] -translate-x-1/2 rounded-xl bg-[#111922] px-8 py-4 text-center text-[15px] leading-[22px] text-[#dfe3e7] shadow-xl"
         >
           {errorToastMessage}
         </div>
